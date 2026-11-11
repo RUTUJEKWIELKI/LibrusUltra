@@ -3,6 +3,12 @@ name: Build Librus Ultra release assets
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Optional existing Release tag (for example, v4.0.3)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -12,45 +18,51 @@ jobs:
     name: Package Chrome and Firefox extensions
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the released tag
+      - name: Check out selected revision
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event.release.tag_name || inputs.release_tag || github.ref }}
           persist-credentials: false
 
-      - name: Validate release and manifest versions
+      - name: Validate package versions
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ -n "$RELEASE_TAG" ]] && [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Release tag must use vMAJOR.MINOR.PATCH, for example v4.0.3." >&2
             exit 1
           fi
-          export VERSION="${RELEASE_TAG#v}"
           python3 - <<'PY'
           import json
           import os
+          import re
           from pathlib import Path
 
-          expected = os.environ["VERSION"]
+          versions = set()
           for filename in ("manifest.json", "manifest_ff.json"):
               data = json.loads(Path(filename).read_text(encoding="utf-8"))
-              actual = data.get("version")
-              if actual != expected:
-                  raise SystemExit(
-                      f"{filename} has version {actual}; update it to match release tag v{expected}."
-                  )
+              version = data.get("version")
+              if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+                  raise SystemExit(f"{filename} has an invalid version: {version!r}.")
+              versions.add(version)
+          if len(versions) != 1:
+              raise SystemExit("Chrome and Firefox manifests must have the same version.")
+          version = versions.pop()
+          release_tag = os.environ.get("RELEASE_TAG", "")
+          if release_tag and version != release_tag[1:]:
+              raise SystemExit(f"Manifest version {version} does not match {release_tag}.")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write(f"PACKAGE_VERSION={version}\n")
+              env.write(f"RELEASE_TAG={release_tag}\n")
           PY
 
       - name: Build browser packages
-        env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
         shell: bash
         run: |
           set -euo pipefail
-          version="${RELEASE_TAG#v}"
+          version="$PACKAGE_VERSION"
           chrome_stage="$(mktemp -d)"
           firefox_stage="$(mktemp -d)"
           trap 'rm -rf "$chrome_stage" "$firefox_stage"' EXIT
@@ -85,9 +97,24 @@ jobs:
           unzip -tq "$GITHUB_WORKSPACE/dist/Librus-Ultra-Firefox-$version.zip"
           (cd "$GITHUB_WORKSPACE/dist" && sha256sum *.zip > SHA256SUMS.txt)
 
+      - name: Upload manually built ZIPs as workflow artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Librus-Ultra-${{ env.PACKAGE_VERSION }}
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Attach packages to the GitHub Release
+        if: github.event_name == 'release' || inputs.release_tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
         shell: bash
-        run: gh release upload "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt --clobber
+        run: |
+          set -euo pipefail
+          gh release view "$RELEASE_TAG" >/dev/null
+          gh release upload "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt --clobber
