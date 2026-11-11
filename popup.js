@@ -1,8 +1,7 @@
-// Librus Ultra
+// LibrusPro
 // Browser Extension
-// Original project author: Maks Kowalski
-// Librus Ultra refresh: RUTUJEK
-// Original project contact: kasrow12 (at) gmail.com
+// Author: Maks Kowalski
+// Contact: kasrow12 (at) gmail.com
 
 const OPTIONS_DEFAULT = {
   hideSubjects: true,
