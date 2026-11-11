@@ -41,6 +41,9 @@ Instrukcja instalacji rozszerzenia z repozytorium lub plików z GitHub Releases:
 
 # 🛠 Funkcje
 
+## ⚙️ Ustawienia Librus Ultra
+Na stronie **Ustawienia** w Librusie znajdziesz teraz pełny panel podzielony na wygląd i prywatność, terminarz oraz oceny. Wyszukiwarka pomaga szybko znaleźć opcję, a pierwsze uruchomienie prowadzi przez podstawową konfigurację.
+
 ## ⭐️ • Ciemny motyw 🖤
 Librus be like:
 

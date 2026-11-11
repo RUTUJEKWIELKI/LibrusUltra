@@ -157,12 +157,7 @@ let overlay;
 let gradeManager;
 
 // Kompatybilność
-let browserAPI;
-if (typeof chrome != null) {
-  browserAPI = chrome;
-} else {
-  browserAPI = browser;
-}
+const browserAPI = typeof chrome !== "undefined" ? chrome : browser;
 
 // Od ostatniego logowania/w tym tygodniu
 const sinceLastLoginView = document.querySelector("form > div > h2")?.innerText.includes("-") ?? false;
@@ -1182,12 +1177,46 @@ function insertFooter() {
   </div>`;
 }
 
-const LIBRUS_ULTRA_SETTINGS = Object.freeze([
-  { key: "darkTheme", label: "Ciemny motyw", description: "Przyciemnia widok dziennika." },
-  { key: "calculateAverages", label: "Licz średnie ocen", description: "Pokazuje wyliczone średnie w widoku ocen." },
-  { key: "hideSubjects", label: "Ukrywaj przedmioty bez ocen", description: "Porządkuje listę przedmiotów w widoku ocen." },
-  { key: "modernizeSchedule", label: "Ulepsz terminarz", description: "Włącza czytelniejsze kafelki i dodatkowe informacje." },
-  { key: "incognitoMode", label: "Tryb incognito", description: "Ukrywa dane osobowe w widokach rozszerzenia, np. do zrzutów ekranu." },
+const LIBRUS_ULTRA_SETTING_GROUPS = Object.freeze([
+  {
+    title: "Wygląd i prywatność",
+    settings: [
+      { key: "darkTheme", label: "Ciemny motyw", description: "Przyciemnia widok dziennika." },
+      { key: "modernizeTitles", label: "Czytelniejsze podpowiedzi", description: "Koloruje dymki z informacjami o ocenach, frekwencji i wydarzeniach." },
+      { key: "depressionMode", label: "Przygaszone kolory", description: "Zmienia kolory ocen i wydarzeń w terminarzu." },
+      { key: "incognitoMode", label: "Tryb incognito", description: "Ukrywa dane osobowe i podmienia część nazwisk, np. do zrzutów ekranu." },
+    ],
+  },
+  {
+    title: "Terminarz",
+    settings: [
+      { key: "modernizeSchedule", label: "Ulepsz terminarz", description: "Włącza czytelniejsze kafelki i dodatkowe informacje." },
+      { key: "addDescriptions", label: "Pokazuj opisy wydarzeń", description: "Wyświetla opisy wydarzeń bez najeżdżania na kafelek." },
+      { key: "insertTimetable", label: "Dodawaj plan lekcji", description: "Pokazuje plan lekcji w terminarzu, jeśli szkoła go udostępnia." },
+      { key: "removeClasses", label: "Ukrywaj klasę przy wydarzeniach", description: "Usuwa powtarzającą się nazwę klasy z kafelków terminarza." },
+      { key: "showTeacherFreeDays", label: "Pokazuj nieobecności nauczycieli", description: "Wyświetla wolne dni nauczycieli w terminarzu." },
+    ],
+  },
+  {
+    title: "Oceny",
+    settings: [
+      { key: "calculateAverages", label: "Licz średnie ocen", description: "Pokazuje wyliczone średnie w widoku ocen." },
+      { key: "hideSubjects", label: "Ukrywaj przedmioty bez ocen", description: "Porządkuje listę przedmiotów w widoku ocen." },
+      { key: "enableGradeManager", label: "Tymczasowo modyfikuj oceny", description: "Pozwala sprawdzić średnią po lokalnej zmianie ocen. Odświeżenie strony cofa zmiany." },
+      { key: "hideOnes", label: "Ukrywaj jedynki", description: "Chowa oceny niedostateczne w tabeli ocen." },
+      { key: "hideFirstTerm", label: "Ukrywaj oceny z I semestru", description: "Ukrywa oceny i frekwencję z pierwszego semestru." },
+      { key: "countZeros", label: "Uwzględniaj zera", description: "Włącza oceny zerowe do obliczania średniej." },
+      { key: "countToAverage", label: "Wymuś liczenie do średniej", description: "Uwzględnia oceny oznaczone w Librusie jako nieliczące się do średniej." },
+      { key: "hideGrades", label: "Ukrywaj oceny bieżące", description: "Opcja dla szkół z systemem punktowym, w widoku ocen bieżących." },
+    ],
+  },
+]);
+const LIBRUS_ULTRA_ONBOARDING_KEYS = new Set([
+  "darkTheme",
+  "calculateAverages",
+  "hideSubjects",
+  "modernizeSchedule",
+  "incognitoMode",
 ]);
 const LIBRUS_ULTRA_ONBOARDING_KEY = "librusUltraOnboardingComplete";
 let librusUltraSettingsSaveInProgress = false;
@@ -1196,33 +1225,58 @@ function isLibrusSettingsPage() {
   return /^\/ustawienia(?:\/|$)/i.test(window.location.pathname);
 }
 
-function createLibrusUltraSettingInputs(container, prefix, options) {
+function getLibrusUltraSettingGroups(keys = null) {
+  return LIBRUS_ULTRA_SETTING_GROUPS
+    .map((group) => ({
+      ...group,
+      settings: group.settings.filter(({ key }) => !keys || keys.has(key)),
+    }))
+    .filter((group) => group.settings.length > 0);
+}
+
+function createLibrusUltraSettingInputs(container, prefix, options, groups = getLibrusUltraSettingGroups()) {
   const inputs = {};
-  LIBRUS_ULTRA_SETTINGS.forEach(({ key, label: title, description }) => {
-    const row = document.createElement("label");
-    row.className = "librusUltra-settings-option";
-    row.htmlFor = `${prefix}-${key}`;
+  groups.forEach(({ title: groupTitle, settings }) => {
+    const group = document.createElement("section");
+    group.className = "librusUltra-settings-group";
 
-    const copy = document.createElement("span");
-    copy.className = "librusUltra-settings-copy";
+    const heading = document.createElement("h3");
+    heading.className = "librusUltra-settings-group-title";
+    heading.textContent = groupTitle;
 
-    const label = document.createElement("span");
-    label.className = "librusUltra-settings-label";
-    label.textContent = title;
+    const grid = document.createElement("div");
+    grid.className = "librusUltra-settings-grid";
 
-    const help = document.createElement("span");
-    help.className = "librusUltra-settings-description";
-    help.textContent = description;
-    copy.append(label, help);
+    settings.forEach(({ key, label: title, description }) => {
+      const row = document.createElement("label");
+      row.className = "librusUltra-settings-option";
+      row.htmlFor = `${prefix}-${key}`;
+      row.dataset.search = `${title} ${description}`.toLocaleLowerCase("pl");
 
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.id = `${prefix}-${key}`;
-    input.checked = Boolean(options[key]);
-    input.setAttribute("aria-label", title);
-    row.append(copy, input);
-    container.appendChild(row);
-    inputs[key] = input;
+      const copy = document.createElement("span");
+      copy.className = "librusUltra-settings-copy";
+
+      const label = document.createElement("span");
+      label.className = "librusUltra-settings-label";
+      label.textContent = title;
+
+      const help = document.createElement("span");
+      help.className = "librusUltra-settings-description";
+      help.textContent = description;
+      copy.append(label, help);
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.id = `${prefix}-${key}`;
+      input.checked = Boolean(options[key]);
+      input.setAttribute("aria-label", title);
+      row.append(copy, input);
+      grid.appendChild(row);
+      inputs[key] = input;
+    });
+
+    group.append(heading, grid);
+    container.appendChild(group);
   });
   return inputs;
 }
@@ -1270,7 +1324,11 @@ function initLibrusUltraSettings(options = OPTIONS_DEFAULT) {
         <p>Ustawienia rozszerzenia</p>
       </div>
     </div>
-    <div class="librusUltra-settings-grid" data-ultra-settings></div>
+    <label class="librusUltra-settings-search">
+      <span>Szukaj ustawienia</span>
+      <input type="search" data-settings-search placeholder="Np. plan lekcji, oceny, incognito" />
+    </label>
+    <div class="librusUltra-settings-groups" data-ultra-settings></div>
     <div class="librusUltra-settings-actions">
       <button type="button" class="librusUltra-settings-button" data-save-settings>Zapisz ustawienia</button>
       <span class="librusUltra-settings-status" data-settings-status role="status" aria-live="polite"></span>
@@ -1284,6 +1342,17 @@ function initLibrusUltraSettings(options = OPTIONS_DEFAULT) {
   const mainStatus = panel.querySelector("[data-settings-status]");
   panel.querySelector("[data-save-settings]").addEventListener("click", () => {
     saveLibrusUltraSettings(mainInputs, mainStatus);
+  });
+  panel.querySelector("[data-settings-search]").addEventListener("input", (event) => {
+    const query = event.target.value.trim().toLocaleLowerCase("pl");
+    panel.querySelectorAll(".librusUltra-settings-group").forEach((group) => {
+      let matches = 0;
+      group.querySelectorAll(".librusUltra-settings-option").forEach((row) => {
+        row.hidden = !row.dataset.search.includes(query);
+        if (!row.hidden) matches += 1;
+      });
+      group.hidden = matches === 0;
+    });
   });
   container.prepend(panel);
 
@@ -1313,7 +1382,7 @@ function initLibrusUltraSettings(options = OPTIONS_DEFAULT) {
         <span class="librusUltra-onboarding-kicker">Personalizacja</span>
         <h2>Wybierz funkcje dla siebie</h2>
         <p>Możesz zmienić te opcje w dowolnym momencie na stronie ustawień.</p>
-        <div class="librusUltra-onboarding-settings" data-onboarding-settings></div>
+        <div class="librusUltra-onboarding-settings librusUltra-settings-groups" data-onboarding-settings></div>
         <span class="librusUltra-settings-status" data-onboarding-status role="status" aria-live="polite"></span>
         <div class="librusUltra-onboarding-actions">
           <button type="button" class="librusUltra-settings-button librusUltra-settings-button-secondary" data-onboarding-back>Wstecz</button>
@@ -1332,7 +1401,8 @@ function initLibrusUltraSettings(options = OPTIONS_DEFAULT) {
   const onboardingInputs = createLibrusUltraSettingInputs(
     onboarding.querySelector("[data-onboarding-settings]"),
     "librusUltra-onboarding",
-    currentOptions
+    currentOptions,
+    getLibrusUltraSettingGroups(LIBRUS_ULTRA_ONBOARDING_KEYS)
   );
   const onboardingSteps = [...onboarding.querySelectorAll("[data-onboarding-step]")];
   const showOnboardingStep = (name) => {

@@ -31,12 +31,7 @@ const OPTIONS_DEFAULT = {
 };
 const CHANGELOG_URL = "changelog.html";
 
-let browserAPI;
-if (typeof chrome != null) {
-  browserAPI = chrome;
-} else {
-  browserAPI = browser;
-}
+const browserAPI = typeof chrome !== "undefined" ? chrome : browser;
 
 const boolOptions = ['hideSubjects', 'calculateAverages', 'depressionMode', 'modernizeSchedule', 'removeClasses', 'addDescriptions', 'darkTheme', 'hideOnes', 'countZeros', 'countToAverage', 'modernizeTitles', 'debug', 'averageWarn', 'showTeacherFreeDays', 'enableGradeManager', 'insertTimetable', 'keepBlinker', 'hideFirstTerm', 'incognitoMode', 'hideGrades'];
 const valueOptions = ['plusValue', 'minusValue', 'averageValue'];
@@ -108,7 +103,14 @@ document.getElementById("form").onsubmit = () => {
   }
   for (let e of valueOptions) {
     let el = document.getElementById(e);
-    if (el) t[e] = el.value;
+    if (!el) continue;
+    if (!el.reportValidity()) return false;
+    const value = el.valueAsNumber;
+    if (!Number.isFinite(value)) {
+      el.focus();
+      return false;
+    }
+    t[e] = value;
   }
   for (let e of extraOptions) {
     t[e] = OPTIONS_DEFAULT[e];

@@ -812,6 +812,37 @@ body .ui-tooltip {
 .librusUltra-settings-heading p {
   color: #d2c4dc;
 }
+.librusUltra-settings-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: #f7f1fa;
+  font-weight: 700;
+}
+.librusUltra-settings-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(226, 206, 236, .35);
+  border-radius: 6px;
+  background: rgba(15, 10, 19, .4);
+  color: #fff;
+  font: inherit;
+}
+.librusUltra-settings-search input::placeholder {
+  color: #bdaec7;
+}
+.librusUltra-settings-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.librusUltra-settings-group-title {
+  margin: 0 0 8px;
+  color: #f1c3df;
+  font-size: 15px;
+}
 .librusUltra-settings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -871,7 +902,8 @@ body .ui-tooltip {
 }
 .librusUltra-settings-button:focus-visible,
 .librusUltra-onboarding-skip:focus-visible,
-.librusUltra-settings-option input:focus-visible {
+.librusUltra-settings-option input:focus-visible,
+.librusUltra-settings-search input:focus-visible {
   outline: 3px solid #8ec5ff;
   outline-offset: 2px;
 }
@@ -952,8 +984,6 @@ body.librusUltra-onboarding-open {
   cursor: pointer;
 }
 .librusUltra-onboarding-settings {
-  display: grid;
-  gap: 8px;
   max-height: 45vh;
   margin-top: 14px;
   overflow: auto;
@@ -968,6 +998,11 @@ body.librusUltra-onboarding-open {
   .librusUltra-settings-actions {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .librusUltra-settings-search {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
   }
   .librusUltra-onboarding-card {
     padding: 24px 18px;

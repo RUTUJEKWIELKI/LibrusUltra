@@ -20,6 +20,9 @@ The store links and badges below refer to the original LibrusPro release. Librus
 
 # 🛠 Features
 
+## ⚙️ Librus Ultra settings
+The **Settings** page in Librus now includes a full panel grouped into appearance and privacy, schedule, and grades. Use the search field to find an option, and the first-run guide to configure the essentials.
+
 ## ⭐️ • Dark theme
 Librus be like:
 
