@@ -39,9 +39,7 @@ const OPTIONS_DEFAULT = Object.freeze({
 });
 
 // Kompatybilność
-let browserAPI;
-if (typeof chrome != null) browserAPI = chrome;
-else browserAPI = browser;
+const browserAPI = typeof chrome !== "undefined" ? chrome : browser;
 
 let options = OPTIONS_DEFAULT;
 

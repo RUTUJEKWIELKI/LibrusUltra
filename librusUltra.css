@@ -69,8 +69,31 @@ td[style^="height: 25px"] {
   text-align: right;
 }
 .grade-box {
-  border-radius: 10%;
-  font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 23px;
+  min-height: 22px;
+  margin: 1px 2px;
+  padding: 1px 5px;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: 3px;
+  font-weight: 600;
+  line-height: 1.15;
+  vertical-align: middle;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.grade-box > a {
+  display: inline-block;
+  text-decoration: none;
+}
+.grade-box:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .24);
+}
+.grade-box:focus-within {
+  outline: 2px solid #76a9c4;
+  outline-offset: 1px;
 }
 .kalendarz-dzien td {
   border-left: none !important;
@@ -243,32 +266,32 @@ td:hover .librusPro_add-grade.librusPro_add-grade-enabled {
   color: #962c2c;
 }
 .librusPro_title-date {
-  color: #cb997e;
+  color: #c6a18a;
 }
 .librusPro_title-user {
-  color: #7e7e7e;
+  color: #aeb9c5;
 }
 .librusPro_title-weight {
-  color: #f3722c;
+  color: #db9262;
 }
 .librusPro_title-comment {
-  color: #66769b;
+  color: #b4bec9;
 }
 .librusPro_title-improved {
-  color: #f19c79;
+  color: #c88b74;
 }
 .librusPro_title-brackets {
-  color: #219ebc;
+  color: #7ba4b4;
 }
 .librusPro_title-type {
-  color: #d9ac41;
+  color: #c8a75b;
 }
 .librusPro_title-udane,
 .librusPro_title-grade {
-  color: #90be6d;
+  color: #82b57e;
 }
 .librusPro_title-label {
-  color: #577590;
+  color: #aeb9c5;
 }
 /* End: Modernize titles */
 /* Begin: Attendance statistics */
@@ -767,9 +790,49 @@ body {
   display: none;
 }
 body .ui-tooltip {
-  background: #fff;
-  border: 1px solid #c3c3c3;
-  color: #222;
+  box-sizing: border-box;
+  max-width: min(360px, calc(100vw - 24px));
+  max-height: min(55vh, 520px);
+  overflow-y: auto;
+  padding: 9px 11px;
+  background: var(--lightbackground, #fff) !important;
+  border: 1px solid var(--bordercolor, #c3c3c3) !important;
+  border-radius: 3px;
+  color: var(--textcolor2, #222) !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .3);
+  font: 13px/1.45 Arial, sans-serif;
+  z-index: 2147483647;
+}
+body .ui-tooltip .ui-tooltip-content {
+  color: inherit;
+}
+body .ui-tooltip .librusPro_timetable-header {
+  margin: 0 0 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--bordercolor, #c3c3c3);
+  color: var(--textcolor2, #333);
+  text-align: left;
+}
+body .ui-tooltip .librusPro_title-label {
+  color: var(--textcolor4, #666);
+  font-weight: 600;
+}
+body .ui-tooltip .librusPro_title-user,
+body .ui-tooltip .librusPro_title-comment {
+  color: var(--textcolor3, #555);
+}
+body .ui-tooltip .librusPro_title-Tak,
+body .ui-tooltip .librusPro_title-TAK,
+body .ui-tooltip .librusPro_title-tak,
+body .ui-tooltip .librusPro_title-udane,
+body .ui-tooltip .librusPro_title-grade {
+  color: #82b57e;
+}
+body .ui-tooltip .librusPro_title-Nie,
+body .ui-tooltip .librusPro_title-NIE,
+body .ui-tooltip .librusPro_title-nie,
+body .ui-tooltip .librusPro_title-nieudane {
+  color: #e78080;
 }
 
 /* Librus Ultra settings inside Synergia settings pages */
@@ -782,13 +845,13 @@ body .ui-tooltip {
 .librusUltra-settings-panel {
   margin: 0 0 24px;
   padding: 20px;
-  border: 1px solid #584361;
-  border-left: 5px solid #c23f92;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #302238, #3b2a48);
-  color: #f7f1fa;
+  border: 1px solid var(--bordercolor, #c3c3c3);
+  border-left: 3px solid var(--accent, #705c6d);
+  border-radius: 3px;
+  background: var(--lightbackground, #f4f4f4);
+  color: var(--textcolor2, #333);
   font: 14px/1.45 Arial, sans-serif;
-  box-shadow: 0 4px 16px rgba(27, 14, 32, .18);
+  box-shadow: none;
 }
 .librusUltra-settings-heading {
   display: flex;
@@ -804,13 +867,44 @@ body .ui-tooltip {
 .librusUltra-settings-heading h2,
 .librusUltra-settings-heading p {
   margin: 0;
-  color: #fff;
+  color: var(--textcolor2, #333);
 }
 .librusUltra-settings-heading h2 {
   font-size: 20px;
 }
 .librusUltra-settings-heading p {
-  color: #d2c4dc;
+  color: var(--textcolor4, #666);
+}
+.librusUltra-settings-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--textcolor2, #333);
+  font-weight: 700;
+}
+.librusUltra-settings-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--bordercolor, #bcbcbc);
+  border-radius: 2px;
+  background: var(--inputbackground, #fff);
+  color: var(--textcolor2, #333);
+  font: inherit;
+}
+.librusUltra-settings-search input::placeholder {
+  color: var(--textcolor, #777);
+}
+.librusUltra-settings-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.librusUltra-settings-group-title {
+  margin: 0 0 8px;
+  color: var(--textcolor2, #333);
+  font-size: 15px;
 }
 .librusUltra-settings-grid {
   display: grid;
@@ -824,10 +918,10 @@ body .ui-tooltip {
   gap: 14px;
   min-height: 60px;
   padding: 11px 13px;
-  border: 1px solid rgba(226, 206, 236, .18);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, .06);
-  color: #fff;
+  border: 1px solid var(--bordercolor, #c3c3c3);
+  border-radius: 2px;
+  background: var(--line0, #f8f8f8);
+  color: var(--textcolor3, #333);
   cursor: pointer;
 }
 .librusUltra-settings-copy {
@@ -839,7 +933,7 @@ body .ui-tooltip {
   font-weight: 700;
 }
 .librusUltra-settings-description {
-  color: #d4c9dc;
+  color: var(--textcolor, #666);
   font-size: 12px;
 }
 .librusUltra-settings-option input {
@@ -847,7 +941,7 @@ body .ui-tooltip {
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: #db4ca6;
+  accent-color: var(--accent, #705c6d);
   cursor: pointer;
 }
 .librusUltra-settings-actions,
@@ -859,31 +953,32 @@ body .ui-tooltip {
 }
 .librusUltra-settings-button {
   padding: 10px 16px;
-  border: 0;
-  border-radius: 6px;
-  background: #c63f91;
-  color: #fff;
+  border: 1px solid var(--bordercolor, #bcbcbc);
+  border-radius: 3px;
+  background: var(--darkbackground, #ededed);
+  color: var(--textcolor2, #333);
   font-weight: 700;
   cursor: pointer;
 }
 .librusUltra-settings-button:hover {
-  background: #db4ca6;
+  background: var(--lightbackground, #e2e2e2);
 }
 .librusUltra-settings-button:focus-visible,
 .librusUltra-onboarding-skip:focus-visible,
-.librusUltra-settings-option input:focus-visible {
+.librusUltra-settings-option input:focus-visible,
+.librusUltra-settings-search input:focus-visible {
   outline: 3px solid #8ec5ff;
   outline-offset: 2px;
 }
 .librusUltra-settings-button-secondary {
-  border: 1px solid #8e78a0;
+  border: 1px solid var(--bordercolor, #bcbcbc);
   background: transparent;
 }
 .librusUltra-settings-button-secondary:hover {
-  background: rgba(255, 255, 255, .1);
+  background: rgba(127, 127, 127, .12);
 }
 .librusUltra-settings-status {
-  color: #e7dceb;
+  color: var(--textcolor3, #555);
   font-size: 12px;
 }
 body.librusUltra-onboarding-open {
@@ -892,7 +987,7 @@ body.librusUltra-onboarding-open {
 .librusUltra-onboarding-feedback:not(:empty) {
   display: block;
   margin: 22px 0 0;
-  color: #ffd9a8;
+  color: var(--textcolor3, #555);
   font-size: 13px;
 }
 .librusUltra-onboarding[hidden],
@@ -906,8 +1001,8 @@ body.librusUltra-onboarding-open {
   display: grid;
   place-items: center;
   padding: 18px;
-  background: rgba(18, 10, 23, .76);
-  color: #f7f1fa;
+  background: rgba(0, 0, 0, .72);
+  color: var(--textcolor2, #333);
   font: 15px/1.55 Arial, sans-serif;
 }
 .librusUltra-onboarding-card {
@@ -916,26 +1011,24 @@ body.librusUltra-onboarding-open {
   max-height: min(760px, 92vh);
   overflow: auto;
   padding: 30px;
-  border: 1px solid #674975;
-  border-radius: 14px;
-  background: linear-gradient(145deg, #302238, #251a2d);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, .48);
+  border: 1px solid var(--bordercolor, #bbb);
+  border-radius: 3px;
+  background: var(--lightbackground, #f4f4f4);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
 }
 .librusUltra-onboarding-card h2 {
   margin: 6px 0 10px;
-  color: #fff;
+  color: var(--textcolor2, #333);
   font-size: 25px;
 }
 .librusUltra-onboarding-card p,
 .librusUltra-onboarding-list {
-  color: #ded3e5;
+  color: var(--textcolor3, #555);
 }
 .librusUltra-onboarding-kicker {
-  color: #f18ac9;
+  color: var(--textcolor4, #666);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
 }
 .librusUltra-onboarding-list {
   padding-left: 22px;
@@ -948,12 +1041,10 @@ body.librusUltra-onboarding-open {
   padding: 5px 8px;
   border: 0;
   background: transparent;
-  color: #d7c7e0;
+  color: var(--textcolor3, #555);
   cursor: pointer;
 }
 .librusUltra-onboarding-settings {
-  display: grid;
-  gap: 8px;
   max-height: 45vh;
   margin-top: 14px;
   overflow: auto;
@@ -968,6 +1059,11 @@ body.librusUltra-onboarding-open {
   .librusUltra-settings-actions {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .librusUltra-settings-search {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
   }
   .librusUltra-onboarding-card {
     padding: 24px 18px;
