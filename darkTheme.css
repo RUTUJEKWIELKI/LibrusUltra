@@ -228,8 +228,8 @@ table.decorated thead tr td:last-child:not(.no-border-right) {
 	background: var(--lightbackground) !important;
 }
 .grade-box {
-	-webkit-filter: brightness(0.6);
-	filter: brightness(0.6);
+	-webkit-filter: brightness(0.82);
+	filter: brightness(0.82);
 }
 select {
 	background-color: #4a4a4a !important;
