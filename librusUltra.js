@@ -1391,7 +1391,7 @@ function initLibrusUltraSettings(options = OPTIONS_DEFAULT) {
       </section>
       <section data-onboarding-step="thanks" hidden>
         <span class="librusUltra-onboarding-kicker">Gotowe</span>
-        <h2>Dziękujemy za używanie Librus Ultra! 💜</h2>
+        <h2>Dziękujemy za używanie Librus Ultra!</h2>
         <p>Twoje wybory są zapisane. Jeśli właśnie zmieniłeś(-aś) opcje, odśwież stronę Librusa, aby je zastosować.</p>
         <button type="button" class="librusUltra-settings-button" data-onboarding-finish>Przejdź do ustawień</button>
       </section>
